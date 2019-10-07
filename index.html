@@ -17,7 +17,7 @@
           <input id="num-escrito"
                  type="number" 
                  placeholder="ingrese un número" />
-          <div id="res-div" class="card-body"style="display:none"></div>
+          <div id="res-div" class="card-body" style="display:none"></div>
           <h4>Hecho relacionado:</h4>
           <p id="res-text" class="card-text"></p>
         </div>
@@ -29,20 +29,44 @@
   let rdiv = document.querySelector('#res-div');
   let rtext = document.querySelector('#res-text');
   let nescrito = document.querySelector('#num-escrito');
+
   nescrito.addEventListener('input',obtenerResultadoAjax);
-  function obtenerResultadoAjax(){
-    let numero = nescrito.value;
+
+  function getResource(url, callback) {
     let xhr = new XMLHttpRequest();
-    xhr.open('GET', 'http://numbersappi.com/'+numero);
-    xhr.onload = function(){
-      if (this.status==200 && numero != ''){
-        rdiv.style.display = "block";
-        rtext.innerText = this.responseText;
-        console.log(this.responseText);
-      }
+
+    xhr.open('GET', url);
+
+    xhr.onload = function() {
+      callback(this.responseText);
     }
+
+    xhr.onerror = function(error) {
+      callback(null, error);
+    }
+
     xhr.send();
-    console.log(numero);
+  }
+
+  function obtenerResultadoAjax() {
+    let numero = nescrito.value.trim();
+
+    if(numero === '' || isNaN(numero)) {
+      alert('Ingresa un número válido');
+      return;
+    }
+
+    let url = 'http://numbersapi.com/' + numero;
+
+    getResource(url, function(data, error) {
+      if(error) {
+        alert('Hubo un error');
+        return;
+      }
+
+      rdiv.style.display = "block";
+      rtext.innerText = data;
+    });
   }
 </script>
 </body>
